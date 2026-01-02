@@ -6,18 +6,18 @@ import warnings
 import smtplib
 from email.message import EmailMessage
 
-
-#warnings.filterwarnings("ignore", category=UserWarning, module="pandas")
 warnings.simplefilter(action='ignore', category=UserWarning)
 
-# save_folder = r"C:\Users\vijay_m\OneDrive - Exdion Solutions Pvt. Ltd.-70692290\Documents\Exdion Insurance\Auto Triggers\JobCounts"
-# os.makedirs(save_folder, exist_ok=True)
-# filename = os.path.join(save_folder, f"IntegrationJobCount_{datetime.now().strftime('%Y%m%d')}.csv")
-
+# Create output folder
 save_folder = "JobCounts"
 os.makedirs(save_folder, exist_ok=True)
-filename = os.path.join(save_folder, f"IntegrationJobCount_{datetime.now().strftime('%Y%m%d')}.csv")
+filename = os.path.join(
+    save_folder,
+    f"IntegrationJobCount_{datetime.now().strftime('%Y%m%d')}.csv"
+)
 
+# ---- DATABASE CONNECTION ----
+print("Connecting to database...")
 
 conn = pyodbc.connect(
     f'DRIVER={{ODBC Driver 17 for SQL Server}};'
@@ -27,7 +27,7 @@ conn = pyodbc.connect(
     f'PWD={os.environ["DB_PASSWORD"]};'
 )
 
-# Your query
+# SQL query
 query = """
 SELECT
     CAST(ProcessDate AT TIME ZONE 'UTC' AT TIME ZONE 'India Standard Time' AS DATE) AS ProcessDateOnly,
@@ -43,32 +43,39 @@ ORDER BY
     BrokerID;
 """
 
-#df = pd.read_sql(query, conn)
 df = pd.read_sql_query(query, conn)
 df.to_csv(filename, index=False)
-print(f"Results saved to {filename}")
+
+print("Query executed, CSV generated:", filename)
 
 conn.close()
 
+# ---- EMAIL SETUP ----
 EMAIL_ADDRESS = os.environ["EMAIL_USER"]
 EMAIL_PASSWORD = os.environ["EMAIL_PASSWORD"]
-      
-SMTP_SERVER = "smtp.office365.com"       
+
+SMTP_SERVER = "smtp.office365.com"
 SMTP_PORT = 587
 
 msg = EmailMessage()
 msg['Subject'] = f"Integration Job Count Report - {datetime.now().strftime('%Y-%m-%d')}"
 msg['From'] = EMAIL_ADDRESS
-msg['To'] = "vijay_m@exdion.com" #"sunil_chandrappa@exdion.com"    
-msg.set_content("Hi,\n\nPlease find attached the Integration Job Count report.\n\nRegards,\nVijay M")
+msg['To'] = "vijay_m@exdion.com"
+msg.set_content(
+    "Hi,\n\nPlease find attached the Integration Job Count report.\n\nRegards,\nVijay M"
+)
 
 # Attach CSV
 with open(filename, 'rb') as f:
-    file_data = f.read()
-    file_name = os.path.basename(filename)
-msg.add_attachment(file_data, maintype='application', subtype='octet-stream', filename=file_name)
+    msg.add_attachment(
+        f.read(),
+        maintype='application',
+        subtype='octet-stream',
+        filename=os.path.basename(filename)
+    )
 
-# Send email
+print("Sending email...")
+
 with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as smtp:
     smtp.starttls()
     smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
