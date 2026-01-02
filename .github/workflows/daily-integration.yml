@@ -13,7 +13,7 @@ jobs:
     steps:
       # Step 1: Checkout your repo
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Step 2: Set up Python
       - name: Set up Python
@@ -34,11 +34,11 @@ jobs:
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
-        run: python "Integrated Load Count.py"
+        run: python "Integrated_Load_Count.py"
 
       # Step 5: Upload CSV output as artifact
       - name: Upload CSV output as artifact
-        uses: github/upload-artifact@v4
+        uses: actions/upload-artifact@v4
         with:
           name: integration-job-count
           path: JobCounts/*.csv
