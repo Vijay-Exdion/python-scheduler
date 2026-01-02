@@ -37,8 +37,8 @@ jobs:
         run: python "Integrated Load Count.py"
 
       # Step 5: Upload CSV output as artifact
-      - name: Upload CSV
-        uses: actions/upload-artifact@v3
+      - name: Upload CSV output as artifact
+        uses: github/upload-artifact@v1
         with:
           name: integration-job-count
           path: JobCounts/*.csv
