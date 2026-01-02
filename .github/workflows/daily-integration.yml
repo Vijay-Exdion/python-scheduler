@@ -1,0 +1,44 @@
+name: Daily Integration Job Count
+
+# Trigger: scheduled run every day at 4:45 PM IST
+on:
+  schedule:
+    - cron: '15 11 * * *'  # 11:15 UTC = 4:45 PM IST
+  workflow_dispatch:  # allows manual trigger if needed
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout your repo
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Python
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Step 4: Run your Python script
+      - name: Run Python script
+        env:
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+        run: python "Integrated Load Count.py"
+
+      # Step 5: Upload CSV output as artifact
+      - name: Upload CSV
+        uses: actions/upload-artifact@v3
+        with:
+          name: integration-job-count
+          path: JobCounts/*.csv
