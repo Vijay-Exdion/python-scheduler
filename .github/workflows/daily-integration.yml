@@ -38,7 +38,7 @@ jobs:
 
       # Step 5: Upload CSV output as artifact
       - name: Upload CSV output as artifact
-        uses: github/upload-artifact@v1
+        uses: github/upload-artifact@v4
         with:
           name: integration-job-count
           path: JobCounts/*.csv
