@@ -9,27 +9,26 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      DB_SERVER: ${{ secrets.DB_SERVER }}
+      DB_NAME: ${{ secrets.DB_NAME }}
+      DB_USER: ${{ secrets.DB_USER }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
 
     steps:
-      # Step 1: Checkout your repo
       - uses: actions/checkout@v3
 
-      # Step 2: Set up Python
-      - name: Set up Python 3.11
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
-      # Step 3: Upgrade pip
       - name: Upgrade pip
         run: python -m pip install --upgrade pip
 
-      # Step 4: Install Python dependencies
       - name: Install Python dependencies
-        run: |
-          pip install pandas pyodbc
+        run: pip install pandas pyodbc
 
-      # Step 5: Install SQL Server ODBC Driver 17
       - name: Install SQL Server ODBC Driver
         run: |
           sudo apt-get update
@@ -39,6 +38,5 @@ jobs:
           sudo apt-get update
           sudo ACCEPT_EULA=Y apt-get install -y msodbcsql17
 
-      # Step 6: Run your Python script
       - name: Run Python script
         run: python Integrated_Load_Count.py
