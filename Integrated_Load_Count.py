@@ -16,16 +16,28 @@ filename = os.path.join(
     f"IntegrationJobCount_{datetime.now().strftime('%Y%m%d')}.csv"
 )
 
-# ---- DATABASE CONNECTION ----
-print("Connecting to database...")
+# Read all database info from environment variables
+db_server = os.environ.get("DB_SERVER")
+db_name = os.environ.get("DB_NAME")
+db_user = os.environ.get("DB_USER")
+db_password = os.environ.get("DB_PASSWORD")
 
+# Check if any variable is missing
+missing_vars = [var for var, val in {"DB_SERVER": db_server, "DB_NAME": db_name, "DB_USER": db_user, "DB_PASSWORD": db_password}.items() if not val]
+if missing_vars:
+    raise ValueError(f"Missing environment variables: {', '.join(missing_vars)}")
+
+# Connect to the database
 conn = pyodbc.connect(
     f'DRIVER={{ODBC Driver 17 for SQL Server}};'
-    f'SERVER=172.40.19.88,1433;'
-    f'DATABASE=ExdionPOD;'
-    f'UID={os.environ["DB_USER"]};'
-    f'PWD={os.environ["DB_PASSWORD"]};'
+    f'SERVER={db_server};'
+    f'DATABASE={db_name};'
+    f'UID={db_user};'
+    f'PWD={db_password};'
 )
+
+print("Connected to database successfully!")
+
 
 # SQL query
 query = """
