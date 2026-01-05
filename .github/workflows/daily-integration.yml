@@ -11,25 +11,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout your repo
       - uses: actions/checkout@v3
 
-      - name: Set up Python
+      # Step 2: Set up Python
+      - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
+      # Step 3: Upgrade pip
       - name: Upgrade pip
         run: python -m pip install --upgrade pip
 
-      - name: Install dependencies
-        run: pip install -r requirements.txt
+      # Step 4: Install Python dependencies
+      - name: Install Python dependencies
+        run: |
+          pip install pandas pyodbc
 
+      # Step 5: Install SQL Server ODBC Driver 17
       - name: Install SQL Server ODBC Driver
         run: |
+          sudo apt-get update
+          sudo apt-get install -y curl gnupg2 unixodbc-dev apt-transport-https
           curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
           curl https://packages.microsoft.com/config/ubuntu/22.04/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list
           sudo apt-get update
           sudo ACCEPT_EULA=Y apt-get install -y msodbcsql17
 
+      # Step 6: Run your Python script
       - name: Run Python script
         run: python Integrated_Load_Count.py
